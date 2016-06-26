@@ -1,0 +1,362 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<title>プルダウンメニューの日付選択で、JavaScriptを使って不正な日付を選択不能にする</title>
+<script type="text/javascript">
+
+// 初期起動時に現在日時をselected
+function initDateSelects() {
+	var d = document;
+
+	var now = new Date();
+
+	var nYear = now.getFullYear();
+	var nMonth = now.getMonth();
+	var nDate = now.getDate();
+	var weekDay = now.getDay();
+
+	d.getElementById("year").selectedIndex = nYear - 2015;
+	d.getElementById("month").selectedIndex = nMonth;
+	d.getElementById("day").selectedIndex = nDate - 1;
+	d.getElementById("week").selectedIndex = weekDay;
+	}
+
+	if(window.addEventListener) {
+	window.addEventListener("load", initDateSelects, false);
+	}
+	else if(window.attachEvent) {
+	window.attachEvent("onload", initDateSelects);
+	}
+
+// 曜日を取得して平日と休日選択の処理
+function Dselect(){
+  var nyear = document.status.year.selectedIndex + 2015;
+  var nmonth = document.status.month.selectedIndex;
+  var nday = document.status.day.selectedIndex + 1;
+  var nweek = new Date(nyear, nmonth, nday);
+
+	var w = nweek.getDay();
+  var options = document.getElementById("week");
+  var ttype = document.getElementById("ttype");
+
+	alert(nweek);
+
+	var nationalHoliday = getNationalHoliday(nweek);
+	// 曜日の選択
+  for(i = 0; i < 7; i++){
+    if(i == w){
+      options[i].selected = true;
+    }
+  }
+  if(w == 0 || w == 6 || nationalHoliday != ""){
+		ttype[1].selected = true;
+    ttype[0].disabled = true;
+		ttype[2].disabled = false;
+    ttype[3].disabled = true;
+    ttype[4].disabled = true;
+  }
+  else {
+    ttype[0].selected = true;
+		ttype[1].disabled = true;
+		ttype[2].disabled = true;
+		ttype[3].disabled = false;
+		ttype[4].disabled = false;
+  }
+
+	var workType = document.status.ttype.selectedIndex;
+	var startMinutesOption = document.getElementById("startminutes");
+	var endMinutesOption = document.getElementById("endminutes");
+	var startHourOption = document.getElementById("starthour");
+	var endHourOption = document.getElementById("endhour");
+
+// 始業と就業時間を制御
+	if(workType == 1 || workType == 3 || workType == 4){
+		startMinutesOption[0].selected = true;
+		startMinutesOption[1].disabled = true;
+		startMinutesOption[2].disabled = true;
+		startMinutesOption[3].disabled = true;
+		endMinutesOption[1].selected = true;
+		endMinutesOption[0].disabled = true;
+		endMinutesOption[2].disabled = true;
+		endMinutesOption[3].disabled = true;
+		endMinutesOption[4].disabled = true;
+
+		startHourOption[0].selected = true;
+		endHourOption[0].disabled = true;
+		endHourOption[1].selected = true;
+		for(var i = 1; i < 24; i++){
+			startHourOption[i].disabled = true;
+		}
+
+		for(var j = 2; j < 25; j++){
+			endHourOption[j].disabled = true;
+		}
+	}
+	else {
+		startMinutesOption[0].selected = true;
+		startMinutesOption[1].disabled = false;
+		startMinutesOption[2].disabled = false;
+		startMinutesOption[3].disabled = false;
+		endMinutesOption[0].selected = true;
+		endMinutesOption[0].disabled = false;
+		endMinutesOption[1].disabled = false;
+		endMinutesOption[2].disabled = false;
+		endMinutesOption[3].disabled = false;
+		endMinutesOption[4].disabled = false;
+
+		startHourOption[0].selected = true;
+		endHourOption[0].selected = true;
+		for(var k = 1; k < 24; k++){
+			startHourOption[k].disabled = false;
+		}
+
+		for(var l = 1; l < 25; l++){
+			endHourOption[l].disabled = false;
+		}
+	}
+}
+
+// 祝日を判定する関数
+function getNationalHoliday(dateobj) {
+    //祝日ならばその名称、祝日でなければ空文字を返す。
+    var nen, tsuki, hi, yobi;
+    if(dateobj.getFullYear() < 2007) {
+        throw new Error("2007年以上にしてください。");
+    }
+    nen = dateobj.getFullYear();
+    tsuki = dateobj.getMonth() + 1;
+    hi = dateobj.getDate();
+    yobi = dateobj.getDay();
+
+    if(tsuki == 1 && hi == 1) {
+        return "元日";
+    }
+    if(tsuki == 2 && hi == 11) {
+        return "建国記念の日";
+    }
+    if(tsuki == 4 && hi == 29) {
+        return "昭和の日";
+    }
+    if(tsuki == 5 && hi == 3) {
+        return "憲法記念日";
+    }
+    if(tsuki == 5 && hi == 4) {
+        return "みどりの日";
+    }
+    if(tsuki == 5 && hi == 5) {
+        return "こどもの日";
+    }
+    if(nen >= 2016 && tsuki == 8 && hi == 11) {
+        return "山の日"; //2016-8-11から実施。
+    }
+    if(tsuki == 11 && hi == 3) {
+        return "文化の日";
+    }
+    if(tsuki == 11 && hi == 23) {
+        return "勤労感謝の日";
+    }
+    if(tsuki == 12 && hi == 23) {
+        return "天皇誕生日";
+    }
+    if(tsuki == 1 && yobi == 1 && 7 < hi && hi < 15) {
+        return "成人の日"; //1月第2月曜日;
+    }
+    if(tsuki == 7 && yobi == 1 && 14 < hi && hi < 22) {
+        return "海の日"; //7月第3月曜日
+    }
+    if(tsuki == 9 && yobi == 1 && 14 < hi && hi < 22) {
+        return "敬老の日"; //9月第3月曜日
+    }
+    if(tsuki == 10 && yobi == 1 && 7 < hi && hi < 15) {
+        return "体育の日"; //10月第2月曜日
+    }
+    if(tsuki == 3 && hi == shunbun(nen)) {
+        return "春分の日";
+    }
+    if(tsuki == 9 && hi == shubun(nen)) {
+        return "秋分の日";
+    }
+    return "";
+}
+
+
+// 春分の日の計算
+function shunbun(nen) {
+    if(nen < 1900 || nen > 2099) {
+        return 0;
+    }
+    if(nen % 4 === 0) {
+        return nen <= 1956 ? 21 : (nen <= 2088 ? 20 : 19);
+    } else if(nen % 4 == 1) {
+        return nen <= 1989 ? 21 : 20;
+    } else if(nen % 4 == 2) {
+        return nen <= 2022 ? 21 : 20;
+    } else {
+        return nen <= 1923 ? 22 : (nen <= 2055 ? 21 : 20);
+    }
+}
+
+// 秋分の日の計算
+function shubun(nen) {
+    if(nen < 1900 || nen > 2099) {
+        return 0;
+    }
+    if(nen % 4 === 0) {
+        return nen <= 2008 ? 23 : 22;
+    } else if(nen % 4 == 1) {
+        return nen <= 1917 ? 24 : (nen <= 2041 ? 23 : 22);
+    } else if(nen % 4 == 2) {
+        return nen <= 1946 ? 24 : (nen <= 2074 ? 23 : 22);
+    } else {
+        return nen <= 1979 ? 24 : 23;
+    }
+}
+</script>
+</head>
+<body>
+<form id="status" type="status" name="status">
+<p>
+<select name="year" id="year" onChange="Dselect()">
+  <option value="2015">2015</option>
+  <option value="2016">2016</option>
+  <option value="2017">2017</option>
+  <option value="2018">2018</option>
+  <option value="2019">2019</option>
+  <option value="2020">2020</option>
+</select><label for="year">year</label>
+<select name="month" id="month" onChange="Dselect()">
+  <option value="01">1</option>
+  <option value="02">2</option>
+  <option value="03">3</option>
+  <option value="04">4</option>
+  <option value="05">5</option>
+  <option value="06">6</option>
+  <option value="07">7</option>
+  <option value="08">8</option>
+  <option value="09">9</option>
+  <option value="10">10</option>
+  <option value="11">11</option>
+  <option value="12">12</option>
+</select><label for="month">month</label>
+<select name="day" id="day" onChange="Dselect()">
+  <option value="01">1</option>
+  <option value="02">2</option>
+  <option value="03">3</option>
+  <option value="04">4</option>
+  <option value="05">5</option>
+  <option value="06">6</option>
+  <option value="07">7</option>
+  <option value="08">8</option>
+  <option value="09">9</option>
+  <option value="10">10</option>
+  <option value="11">11</option>
+  <option value="12">12</option>
+  <option value="13">13</option>
+  <option value="14">14</option>
+  <option value="15">15</option>
+  <option value="16">16</option>
+  <option value="17">17</option>
+  <option value="18">18</option>
+  <option value="19">19</option>
+  <option value="20">20</option>
+  <option value="21">21</option>
+  <option value="22">22</option>
+  <option value="23">23</option>
+  <option value="24">24</option>
+  <option value="25">25</option>
+  <option value="26">26</option>
+  <option value="27">27</option>
+  <option value="28">28</option>
+  <option value="29">29</option>
+  <option value="30">30</option>
+  <option value="31">31</option>
+</select><label for="day">day</label>
+<select name="week" id="week">
+  <option value="0">Sun.</option>
+  <option value="1">Mon.</option>
+  <option value="2">Tues.</option>
+  <option value="3">Wed.</option>
+  <option value="4">Thurs.</option>
+  <option value="5">Fri.</option>
+  <option value="6">Sat.</option>
+</select><label for="week">week</label>
+<select name="ttype" id="ttype" onChange="timeSelect()">
+  <option value="1" selected>weekday</option>
+  <option value="2">holiday</option>
+  <option value="3">drawer</option>           <!-- 振出 -->
+  <option value="4">compensatory day</option> <!-- 振休 -->
+  <option value="5">salaried</option>         <!--　有給 -->
+</select><label for="type">type</label>
+</p>
+<select name="starthour" id="starthour">
+	<option value="00">00</option>
+  <option value="01">01</option>
+  <option value="02">02</option>
+  <option value="03">03</option>
+  <option value="04">04</option>
+	<option value="05">05</option>
+	<option value="06">06</option>
+	<option value="07">07</option>
+  <option value="08">08</option>
+  <option value="09">09</option>
+  <option value="10">10</option>
+	<option value="11">11</option>
+	<option value="12">12</option>
+	<option value="13">13</option>
+	<option value="14">14</option>
+	<option value="15">15</option>
+	<option value="16">16</option>
+	<option value="17">17</option>
+	<option value="18">18</option>
+	<option value="19">19</option>
+	<option value="20">20</option>
+	<option value="21">21</option>
+	<option value="22">22</option>
+	<option value="23">23</option>
+</select>starthour
+<select name="startminutes" id="startminutes">
+	<option value="00">00</option>
+  <option value="15">15</option>
+  <option value="30">30</option>
+  <option value="45">45</option>
+</select>startminutes
+</p>
+<select name="endhour" id="endhour">
+	<option value="space"></option>
+	<option value="00">00</option>
+  <option value="01">01</option>
+  <option value="02">02</option>
+  <option value="03">03</option>
+  <option value="04">04</option>
+	<option value="05">05</option>
+	<option value="06">06</option>
+	<option value="07">07</option>
+  <option value="08">08</option>
+  <option value="09">09</option>
+  <option value="10">10</option>
+	<option value="11">11</option>
+	<option value="12">12</option>
+	<option value="13">13</option>
+	<option value="14">14</option>
+	<option value="15">15</option>
+	<option value="16">16</option>
+	<option value="17">17</option>
+	<option value="18">18</option>
+	<option value="19">19</option>
+	<option value="20">20</option>
+	<option value="21">21</option>
+	<option value="22">22</option>
+	<option value="23">23</option>
+</select>endhour
+<select name="endminutes" id="endminutes">
+	<option value="space"></option>
+	<option value="00">00</option>
+  <option value="15">15</option>
+  <option value="30">30</option>
+  <option value="45">45</option>
+</select>endminutes
+
+
+<p><input type="submit" /></p>
+</form>
+</body>
+</html>
