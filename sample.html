@@ -48,18 +48,23 @@ function Dselect(){
     }
   }
   if(w == 0 || w == 6 || nationalHoliday != ""){
-		ttype[1].selected = true;
+		ttype[0].selected = true;
     ttype[0].disabled = true;
 		ttype[2].disabled = false;
     ttype[3].disabled = true;
     ttype[4].disabled = true;
+		if(ttype[0].selected == true){
+			ttype[1].selected = true;
+		}
   }
   else {
-    ttype[0].selected = true;
 		ttype[1].disabled = true;
 		ttype[2].disabled = true;
 		ttype[3].disabled = false;
 		ttype[4].disabled = false;
+		if(ttype[1].selected == true){
+			ttype[0].selected = true;
+		}
   }
 
 	var workType = document.status.ttype.selectedIndex;
